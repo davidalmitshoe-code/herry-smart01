@@ -22,7 +22,7 @@ TOKEN = "8820217071:AAFnpv9DJnHUai2LlGQx86t8bb4sj3fVVuE"
 
 ADMIN_ID = 998942116
 
-WEBAPP_URL = "YOUR_RENDER_WEBAPP_URL"
+WEBAPP_URL = "https://davidalmitshoe-code.github.io/herry-smart01/"
 
 NAME, PHONE, PLACE = range(3)
 
