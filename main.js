@@ -3,67 +3,67 @@ const products = [
 {
 name:"Eye Gelass",
 price:1000,
-image:"images/eyegalss_a.jpg"
+image:"eyegalss_a.jpg"
 },
 
 {
 name:"iPhone 14 pro max",
 price:650,
-image:"images/iphone14.jpg"
+image:"iphone14.jpg"
 },
 
 {
 name:"phone suction stickers",
 price:300,
-image:"images/phone.jpg"
+image:"phone.jpg"
 },
 
 {
 name:"New Stylish EyeGlasses",
 price:1000,
-image:"images/eye_galss_b.jpg"
+image:"eye_galss_b.jpg"
 },
 
 {
 name:"New Stylish EyeGlasses",
 price:1000,
-image:"images/eyegalssd.jpg"
+image:"eyegalssd.jpg"
 },
 
 {
 name:"New Stylish EyeGlasses",
 price:1000,
-image:"images/eyegalssc.jpg"
+image:"eyegalssc.jpg"
 },
 
 {
 name:"Galaxy a56",
 price:899,
-image:"images/galaxya56.jpg"
+image:"galaxya56.jpg"
 },
 
 {
 name:"Galaxy S23",
 price:899,
-image:"images/galaxys23.jpg"
+image:"galaxys23.jpg"
 },
 
 {
 name:"Galaxy 12 pro",
 price:899,
-image:"images/galxy12pro.jpg"
+image:"galxy12pro.jpg"
 },
 
 {
 name:"iphone 11",
 price:999,
-image:"images/iphone11.jpg"
+image:"iphone11.jpg"
 },
 
 {
 name:"galaxy cover",
 price:1000,
-image:"images/galaxy.jpg"
+image:"galaxy.jpg"
 }
 
 ];
