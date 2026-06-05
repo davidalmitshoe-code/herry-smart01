@@ -14,11 +14,23 @@ from telegram.ext import (
     filters
 )
 
+import logging
+import json
+
+# ==========================
+# LOGGING
+# ==========================
+
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
+
 # ==========================
 # CONFIGURATION
 # ==========================
 
-TOKEN = "8820217071:AAFnpv9DJnHUai2LlGQx86t8bb4sj3fVVuE"
+TOKEN = "8820217071:AAGltetsRpmnq4OG_osBdHH5pcvL0EJNdG4"
 
 ADMIN_ID = 998942116
 
@@ -35,9 +47,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
 
     await update.message.reply_text(
-        "📱👋 **Welcome to Herry Mobile & Electronics Shop!**\n\n"
-        "To provide accurate delivery estimations, let's complete a quick setup profile.\n"
-        "What is your **Full Name**?"
+        "📱 Welcome to Herry Mobile & Electronics\n\n"
+        "Please enter your Full Name:"
     )
 
     return NAME
@@ -49,10 +60,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    context.user_data["name"] = update.message.text
+    context.user_data["name"] = update.message.text.strip()
 
     await update.message.reply_text(
-        "📞Thank you. Now, please enter your **Phone Number**:"
+        "📞 Enter Phone Number:"
     )
 
     return PHONE
@@ -64,10 +75,10 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    context.user_data["phone"] = update.message.text
+    context.user_data["phone"] = update.message.text.strip()
 
     await update.message.reply_text(
-        "📍 Perfect! Now Enter Delivery  Specific Place:"
+        "📍 Enter Delivery Place:"
     )
 
     return PLACE
@@ -79,38 +90,36 @@ async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_place(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    context.user_data["place"] = update.message.text
+    context.user_data["place"] = update.message.text.strip()
 
-    username = update.effective_user.username
+    username = update.effective_user.username or "No Username"
 
-    if username:
-        context.user_data["username"] = username
-    else:
-        context.user_data["username"] = "No Username"
+    context.user_data["username"] = username
 
-    # Send registration to admin
     registration_message = f"""
 🆕 NEW CUSTOMER
 
 👤 Name: {context.user_data['name']}
-
 📞 Phone: {context.user_data['phone']}
-
 📍 Place: {context.user_data['place']}
-
-👤 Username: @{context.user_data['username']}
+📱 Username: @{username}
 """
 
-    await context.bot.send_message(
-        chat_id=ADMIN_ID,
-        text=registration_message
-    )
+    try:
+        await context.bot.send_message(
+            chat_id=ADMIN_ID,
+            text=registration_message
+        )
+    except Exception as e:
+        print("ADMIN MESSAGE ERROR:", e)
 
     keyboard = [
         [
             InlineKeyboardButton(
                 text="🛒 Open Shop",
-                web_app=WebAppInfo(url=WEBAPP_URL)
+                web_app=WebAppInfo(
+                    url=WEBAPP_URL
+                )
             )
         ]
     ]
@@ -125,39 +134,46 @@ async def get_place(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ==========================
-# MINI APP ORDER RECEIVER
+# RECEIVE MINI APP ORDER
 # ==========================
 
 async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
-        import json
 
-        data = update.effective_message.web_app_data.data
+        raw_data = update.effective_message.web_app_data.data
 
-        order = json.loads(data)
+        print("RAW DATA:", raw_data)
+
+        order = json.loads(raw_data)
 
         customer = update.effective_user
 
+        username = customer.username or "No Username"
+
+        cart = order.get("cart", [])
+
+        total = order.get("total", 0)
+
         products_text = ""
 
-        for item in order["cart"]:
-            products_text += (
-                f"• {item['name']} - {item['price']} ETB\n"
-            )
+        for item in cart:
+
+            name = item.get("name", "Unknown Product")
+            price = item.get("price", 0)
+
+            products_text += f"• {name} - {price} ETB\n"
 
         message = f"""
 🛍 NEW ORDER
 
-👤 User: {customer.full_name}
-
-📱 Username: @{customer.username}
+👤 Customer: {customer.full_name}
+📱 Username: @{username}
 
 📦 Products:
 {products_text}
 
-💰 Total Price:
-{order['total']} ETB
+💰 Total: {total} ETB
 """
 
         await context.bot.send_message(
@@ -171,7 +187,7 @@ async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
 
-        print("ORDER ERROR:", e)
+        print("WEBAPP ERROR:", e)
 
         await update.message.reply_text(
             "❌ Order Failed."
@@ -185,7 +201,7 @@ async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
-        "Registration cancelled."
+        "❌ Registration Cancelled."
     )
 
     return ConversationHandler.END
@@ -200,6 +216,7 @@ def main():
     app = Application.builder().token(TOKEN).build()
 
     conv_handler = ConversationHandler(
+
         entry_points=[
             CommandHandler("start", start)
         ],
@@ -242,7 +259,7 @@ def main():
         )
     )
 
-    print("Bot Running...")
+    print("✅ Bot Running...")
 
     app.run_polling(
         drop_pending_updates=True
