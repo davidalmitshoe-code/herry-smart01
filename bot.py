@@ -15,7 +15,7 @@ import logging
 import json
 
 # ==========================
-# LOGGING
+# SYSTEM SETUP
 # ==========================
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -23,94 +23,85 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ==========================
-# CONFIGURATION
-# ==========================
 TOKEN = "8820217071:AAGltetsRpmnq4OG_osBdHH5pcvL0EJNdG4"
 ADMIN_ID = 998942116
 WEBAPP_URL = "https://davidalmitshoe-code.github.io/herry-smart01/"
 
 # ==========================
-# START COMMAND
+# COMMAND INTERACTION
 # ==========================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Use a regular reply keyboard button. This is CRITICAL for sendData to work!
+    # Setup bottom panel persistent menu shortcut
     keyboard = [
         [
             KeyboardButton(
-                text="🛒 Open Herry Shop",
+                text="🛍️ Open Herry Store",
                 web_app=WebAppInfo(url=WEBAPP_URL)
             )
         ]
     ]
-    
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
     await update.message.reply_text(
-        "📱 Welcome to Herry Mobile & Electronics!\n\n"
-        "Click the button below at the bottom of your screen to open our shop, register, and place your order.",
+        "✨ Welcome to Herry Mobile & Electronics!\n\n"
+        "Tap the button below to browse our inventory, update your address information, and check out securely.",
         reply_markup=reply_markup
     )
 
 # ==========================
-# RECEIVE WEBAPP DATA
+# WEBAPP PACKET PARSER
 # ==========================
 async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        raw_data = update.effective_message.web_app_data.data
-        logger.info(f"RAW DATA RECEIVED: {raw_data}")
+        raw_string = update.effective_message.web_app_data.data
+        logger.info(f"Incoming Payload Stream: {raw_string}")
 
-        order_info = json.loads(raw_data)
+        order_package = json.loads(raw_string)
         
-        # Extract Customer Info from WebApp Form
-        customer_name = order_info.get("name", "Not Provided")
-        customer_phone = order_info.get("phone", "Not Provided")
-        customer_place = order_info.get("place", "Not Provided")
+        # Destructure package values fields
+        name = order_package.get("name", "Unknown Profile")
+        phone = order_package.get("phone", "No Contact Phone")
+        place = order_package.get("place", "No Location Specified")
+        cart = order_package.get("cart", [])
+        total = order_package.get("total", 0)
         
-        # Extract Cart Info
-        cart = order_info.get("cart", [])
-        total = order_info.get("total", 0)
-        
-        # Telegram Username
-        tg_user = update.effective_user
-        username = f"@{tg_user.username}" if tg_user.username else "No Username"
+        user_meta = update.effective_user
+        handle = f"@{user_meta.username}" if user_meta.username else "Private User Account"
 
-        # Format products
-        products_text = ""
-        for item in cart:
-            name = item.get("name", "Unknown Product")
-            price = item.get("price", 0)
-            products_text += f"• {name} - {price} ETB\n"
+        # Compute product inventory listing item lines
+        items_list_summary = ""
+        for index, item in enumerate(cart, 1):
+            title = item.get("name", "Device Item")
+            cost = item.get("price", 0)
+            items_list_summary += f"{index}. {title} — {cost} ETB\n"
 
-        # Combined Admin Message
-        admin_message = f"""
-🛍️ NEW ORDER & CUSTOMER REGISTRATION
+        receipt_template = f"""
+📦 NEW CUSTOMER INVOICE
 
-👤 CUSTOMER INFO:
-Name: {customer_name}
-Phone: {customer_phone}
-Delivery Place: {customer_place}
-Telegram: {username}
+👤 PROFILE INFRASTRUCTURE:
+▪️ Customer: {name}
+▪️ Contact: {phone}
+▪️ Location: {place}
+▪️ Telegram: {handle}
 
-📦 ORDER DETAILS:
-{products_text if products_text else 'No products selected'}
-💰 Total: {total} ETB
+🛒 SELECTED ITEMS:
+{items_list_summary if items_list_summary else 'No products declared.'}
+💰 TOTAL CHARGE AMOUNT: {total} ETB
 """
+        # Forward direct notice message copy to operations panel
+        await context.bot.send_message(chat_id=ADMIN_ID, text=receipt_template)
 
-        # Send to Admin
-        await context.bot.send_message(chat_id=ADMIN_ID, text=admin_message)
-
-        # Confirm to Customer
+        # Notify active subscriber checkout validation success confirmation response
         await update.message.reply_text(
-            f"✅ Thank you {customer_name}! Your order and registration info have been sent to the admin successfully."
+            f"🎉 Success, {name}!\n\nYour order has been transmitted. The store admin is reviewing your order details."
         )
 
-    except Exception as e:
-        logger.error(f"WEBAPP PROCESSING ERROR: {e}")
-        await update.message.reply_text("❌ Failed to process order. Please try again.")
+    except Exception as error:
+        logger.error(f"Failed parsing message payload execution state: {error}")
+        await update.message.reply_text("⚠️ An error occurred parsing the invoice data. Please verify fields try again.")
 
 # ==========================
-# MAIN
+# EXECUTION ROUTER
 # ==========================
 def main():
     app = Application.builder().token(TOKEN).build()
@@ -118,7 +109,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data))
 
-    print("✅ Bot is actively running...")
+    print("🤖 Processing Loop Initialized...")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
