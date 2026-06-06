@@ -18,10 +18,11 @@ WEBAPP_URL = "https://davidalmitshoe-code.github.io/herry-smart01/"
 USER_STATE = {}
 USER_DATA = {}
 
-# State Constants
+# State Constants for Registration Flow
 STATE_NAME = 1
 STATE_PHONE = 2
-STATE_READY = 3
+STATE_PLACE = 3
+STATE_READY = 4
 
 # ==========================================
 # 1. INITIAL START & REGISTRATION STEP FLOW
@@ -29,6 +30,7 @@ STATE_READY = 3
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     USER_STATE[user_id] = STATE_NAME
+    USER_DATA[user_id] = {} # Initialize empty data for user
     
     await update.message.reply_text(
         "👋 Welcome to Herry Mobile & Accessories!\n\n"
@@ -41,17 +43,26 @@ async def handle_registration_messages(update: Update, context: ContextTypes.DEF
     current_state = USER_STATE.get(user_id)
     text = update.message.text.strip()
 
+    if user_id not in USER_DATA:
+        USER_DATA[user_id] = {}
+
     # Step A: Capture Full Name Input
     if current_state == STATE_NAME:
-        USER_DATA[user_id] = {"name": text}
+        USER_DATA[user_id]["name"] = text
         USER_STATE[user_id] = STATE_PHONE
         await update.message.reply_text("Great! Now please enter your **Phone Number** 📞:")
         return
 
     # Step B: Capture Phone Number Input
     elif current_state == STATE_PHONE:
-        if user_id in USER_DATA:
-            USER_DATA[user_id]["phone"] = text
+        USER_DATA[user_id]["phone"] = text
+        USER_STATE[user_id] = STATE_PLACE
+        await update.message.reply_text("Excellent! Finally, please enter your **Delivery Place / Location** 📍:")
+        return
+
+    # Step C: Capture Delivery Place Input
+    elif current_state == STATE_PLACE:
+        USER_DATA[user_id]["place"] = text
         USER_STATE[user_id] = STATE_READY
 
         # Registration Success Welcome Announcement Layout
@@ -84,10 +95,11 @@ async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
         raw_string = update.effective_message.web_app_data.data
         order_package = json.loads(raw_string)
         
-        # Pull registration variables from memory data backup, or fallback to webapp arguments
+        # Pull registration variables entirely from the chat memory database
         saved_info = USER_DATA.get(user_id, {})
-        name = saved_info.get("name", order_package.get("name", "Unknown Profile"))
-        phone = saved_info.get("phone", order_package.get("phone", "No Phone Provided"))
+        name = saved_info.get("name", "Unknown Profile")
+        phone = saved_info.get("phone", "No Contact Phone")
+        place = saved_info.get("place", "No Location Specified")
         
         cart = order_package.get("cart", [])
         total = order_package.get("total", 0)
@@ -95,21 +107,25 @@ async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_meta = update.effective_user
         handle = f"@{user_meta.username}" if user_meta.username else "No Username"
 
-        # Build clean string listing array items 
-        items_ordered = []
-        for item in cart:
-            items_ordered.append(f"{item.get('name')} (Price: {item.get('price')} ETB)")
-        order_summary_string = ", ".join(items_ordered)
+        # Compile and format chosen product listing items with standard counting numbers
+        items_list_summary = ""
+        for index, item in enumerate(cart, 1):
+            title = item.get("name", "Electronic Item")
+            cost = item.get("price", 0)
+            items_list_summary += f"{index}. {title} — {cost} ETB\n"
 
-        # EXACT INVOICE FORMAT MATCHING YOUR SYSTEM LOG
-        receipt_template = f"""🚨 NEW ORDER
-━━━━━━━━━━━━━━━
-👤 Name: {name}
-📞 Phone: {phone}
-🆔 TG: {handle}
-🍱 Order: {order_summary_string}
-💰 Total: {total} ETB
-━━━━━━━━━━━━━━━"""
+        # Your exact customer layout block format
+        receipt_template = f"""📦 NEW CUSTOMER INVOICE
+
+👤 PROFILE INFRASTRUCTURE:
+▪️ Customer: {name}
+▪️ Contact: {phone}
+▪️ Location: {place}
+▪️ Telegram: {handle}
+
+🛒 SELECTED ITEMS:
+{items_list_summary if items_list_summary else 'No products selected.'}
+💰 TOTAL CHARGE AMOUNT: {total} ETB"""
 
         # Dispatches structured receipt block safely to Admin Chat Panel
         await context.bot.send_message(chat_id=ADMIN_ID, text=receipt_template)
@@ -117,7 +133,7 @@ async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Customer success response confirmation text
         await update.message.reply_text(
             f"🎉 Order received successfully, {name}!\n"
-            f"Our team will process your order and contact you shortly."
+            f"Our team will process your order and contact you at {phone} shortly."
         )
 
     except Exception as error:
