@@ -104,27 +104,16 @@ const li=document.createElement("li");
 
 li.innerText=
 `${product.name} - ${product.price}`;
-document.getElementById("orderBtn")
+
+  document.getElementById("orderBtn")
 .addEventListener("click",()=>{
 
-localStorage.setItem(
-"lastOrder",
-JSON.stringify(cart)
-);
+const tg = window.Telegram.WebApp;
 
-if(window.Telegram && Telegram.WebApp){
-
-Telegram.WebApp.sendData(
-JSON.stringify({
-cart: cart,
-total: total
-})
-);
-
-}else{
-
-alert("Open this shop from Telegram.");
-
-}
+tg.sendData(JSON.stringify({
+cart,
+total
+}));
 
 });
+
