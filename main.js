@@ -104,24 +104,27 @@ const li=document.createElement("li");
 
 li.innerText=
 `${product.name} - ${product.price}`;
-
-document.getElementById("cart")
-.appendChild(li);
-
-});
-
-productsDiv.appendChild(div);
-
-});
-
 document.getElementById("orderBtn")
 .addEventListener("click",()=>{
 
-const tg = window.Telegram.WebApp;
+localStorage.setItem(
+"lastOrder",
+JSON.stringify(cart)
+);
 
-tg.sendData(JSON.stringify({
-cart,
-total
-}));
+if(window.Telegram && Telegram.WebApp){
+
+Telegram.WebApp.sendData(
+JSON.stringify({
+cart: cart,
+total: total
+})
+);
+
+}else{
+
+alert("Open this shop from Telegram.");
+
+}
 
 });
