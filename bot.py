@@ -76,11 +76,10 @@ async def handle_registration_messages(update: Update, context: ContextTypes.DEF
             "✨ With Herry Store you can:\n"
             "🚀 Get devices & items delivered quickly\n"
             "🍱 Choose from premium quality electronic options\n"
-            "🎓 Enjoy student-friendly competitive pricing in Adama\n\n"
-            "📞 Call us anytime at: 0928854849\n\n"
+            "🎓 Enjoy -friendly competitive pricing in hossana\n\n"
+            "📞 Call us anytime at: 0922445514\n\n"
             "📢 Announcement:\n"
-            "We have started priority device delivery directly to ASTU Dorms!\n"
-            "💰 Fast campus distribution guarantee!\n\n"
+            "We have started priority device delivery directly to Loction!\n"
             "👇 Click the Open Herry Store button below!"
         )
         await update.message.reply_text(text=welcome_billboard, reply_markup=reply_markup)
