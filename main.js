@@ -105,7 +105,16 @@ const li=document.createElement("li");
 li.innerText=
 `${product.name} - ${product.price}`;
 
-  document.getElementById("orderBtn")
+document.getElementById("cart")
+.appendChild(li);
+
+});
+
+productsDiv.appendChild(div);
+
+});
+
+document.getElementById("orderBtn")
 .addEventListener("click",()=>{
 
 const tg = window.Telegram.WebApp;
@@ -116,4 +125,3 @@ total
 }));
 
 });
-
