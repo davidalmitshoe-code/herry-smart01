@@ -1,5 +1,7 @@
 import logging
 import json
+import asyncio
+from flask import Flask, request
 from telegram import Update, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
@@ -13,6 +15,16 @@ logger = logging.getLogger(__name__)
 TOKEN = "8820217071:AAGltetsRpmnq4OG_osBdHH5pcvL0EJNdG4"
 ADMIN_ID = 998942116
 WEBAPP_URL = "https://davidalmitshoe-code.github.io/herry-smart01/"
+
+# 🌍 PRODUCTION HOSTING URL 
+# Replace this with your actual Render URL (e.g., https://herry-store-bot.onrender.com)
+RENDER_WEB_URL = "https://YOUR-APP-NAME.onrender.com" 
+
+# Initialize Flask App Engine
+flask_app = Flask(__name__)
+
+# Initialize Telegram Application Engine
+tg_app = Application.builder().token(TOKEN).build()
 
 # Temporary In-Memory State Database (To track chat steps)
 USER_STATE = {}
@@ -76,10 +88,11 @@ async def handle_registration_messages(update: Update, context: ContextTypes.DEF
             "✨ With Herry Store you can:\n"
             "🚀 Get devices & items delivered quickly\n"
             "🍱 Choose from premium quality electronic options\n"
-            "🎓 Enjoy -friendly competitive pricing in hossana\n\n"
+            "🎓 Enjoy student-friendly competitive pricing in Hossana\n\n"
+            "📍 Visit our shop: Hossana Grace Plaza B12, Mobile Zone\n"
             "📞 Call us anytime at: 0922445514\n\n"
             "📢 Announcement:\n"
-            "We have started priority device delivery directly to Loction!\n"
+            "We have started priority device delivery directly to your Location!\n"
             "👇 Click the Open Herry Store button below!"
         )
         await update.message.reply_text(text=welcome_billboard, reply_markup=reply_markup)
@@ -138,19 +151,54 @@ async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as error:
         logger.error(f"Error compiling webapp data packet: {error}")
 
+# Register all bot command and message handlers
+tg_app.add_handler(CommandHandler("start", start))
+tg_app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data))
+tg_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_registration_messages))
+
 # ==========================================
-# 3. RUN ENGINE LOOP DEFINITION
+# 3. FLASK WEBHOOK ROUTES & RUN CONFIGURATION
 # ==========================================
-def main():
-    app = Application.builder().token(TOKEN).build()
+
+@flask_app.route("/", methods=["GET"])
+def home_index():
+    return "Herry Bot Webhook Server is Online! 🚀", 200
+
+@flask_app.route(f"/{TOKEN}", methods=["POST"])
+def telegram_webhook_handler():
+    """Receives incoming live updates directly sent from Telegram servers"""
+    try:
+        json_payload = request.get_data().decode("utf-8")
+        update = Update.de_json(json.loads(json_payload), tg_app.bot)
+        
+        # Inject the update safely directly inside the async loop runner context
+        asyncio.run(tg_app.process_update(update))
+        return "OK", 200
+    except Exception as err:
+        logger.error(f"Webhook update processing exception: {err}")
+        return "Internal Error", 500
+
+@flask_app.route("/set_webhook", methods=["GET"])
+def setup_live_webhook():
+    """Call this route via browser to automatically register your server hook link"""
+    if "YOUR-APP-NAME" in RENDER_WEB_URL:
+        return "❌ Setup Error: Please replace line 18 with your live Render app URL address first!", 400
     
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data))
-    # Handles interactive incoming chat setup answers text fields
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_registration_messages))
+    target_webhook_url = f"{RENDER_WEB_URL}/{TOKEN}"
     
-    print("🤖 Processing Loop Initialized. Bot running smoothly...")
-    app.run_polling(drop_pending_updates=True)
+    async def set_hook():
+        async with tg_app:
+            return await tg_app.bot.set_webhook(url=target_webhook_url)
+            
+    try:
+        success = asyncio.run(set_hook())
+        if success:
+            return f"✅ Webhook Registered Successfully to URL: {target_webhook_url}", 200
+        return "❌ Webhook Registration Failed.", 500
+    except Exception as e:
+        return f"❌ Error setting webhook registration setup: {e}", 500
 
 if __name__ == "__main__":
-    main()
+    # Local fallback initialization for testing purposes
+    asyncio.run(tg_app.initialize())
+    flask_app.run(host="0.0.0.0", port=5000)
