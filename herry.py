@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 # Credentials Configuration
 TOKEN = "8820217071:AAGltetsRpmnq4OG_osBdHH5pcvL0EJNdG4"
 ADMIN_ID = 998942116
-WEBAPP_URL = "https://davidalmitshoe-code.github.io/herry-smart01/"
+WEBAPP_URL = " https://herry-ngeb.onrender.com"
 
 # 🌍 PRODUCTION HOSTING URL 
 # Replace this with your actual Render URL (e.g., https://herry-store-bot.onrender.com)
