@@ -163,7 +163,6 @@ tg_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_regist
 @flask_app.route("/", methods=["GET"])
 def home_index():
     return "Herry Bot Webhook Server is Online! 🚀", 200
-
 @flask_app.route(f"/{TOKEN}", methods=["POST"])
 def telegram_webhook_handler():
     """Receives incoming live updates directly sent from Telegram servers"""
@@ -171,8 +170,14 @@ def telegram_webhook_handler():
         json_payload = request.get_data().decode("utf-8")
         update = Update.de_json(json.loads(json_payload), tg_app.bot)
         
-        # Inject the update safely directly inside the async loop runner context
-        asyncio.run(tg_app.process_update(update))
+        # FIX: Force execution inside the active running loop thread context safely
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        loop.create_task(tg_app.process_update(update))
         return "OK", 200
     except Exception as err:
         logger.error(f"Webhook update processing exception: {err}")
