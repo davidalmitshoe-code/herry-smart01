@@ -12,22 +12,21 @@ const products = [
   { name: "galaxy cover", price: 1000, image: "galaxy.jpg" }
 ];
 
-// Persistent variables saved globally so items aren't deleted when viewing contact page
-if (!window.cartStorage) window.cartStorage = {};
-if (!window.totalStorage) window.totalStorage = 0;
+// Load saved data from localStorage memory or initialize empty if first time
+let savedCart = localStorage.getItem("herry_cart");
+let savedTotal = localStorage.getItem("herry_total");
 
-// 1. Core Render and Bind Engine Function
+let cart = savedCart ? JSON.parse(savedCart) : {};
+let total = savedTotal ? parseInt(savedTotal) : 0;
+
 function initHerryStoreGrid() {
   const productsDiv = document.getElementById("products");
   const orderBtn = document.getElementById("orderBtn");
 
-  // If we aren't currently viewing the main storefront HTML layout page, exit safely
   if (!productsDiv || !orderBtn) return;
 
-  // Clear existing items grid layout to prevent rendering duplicates
   productsDiv.innerHTML = "";
 
-  // Render items to the Home Page interface grid
   products.forEach(product => {
     const div = document.createElement("div");
     div.className = "product";
@@ -39,30 +38,33 @@ function initHerryStoreGrid() {
     `;
 
     div.querySelector(".add-btn").addEventListener("click", () => {
-      if (window.cartStorage[product.name]) {
-        window.cartStorage[product.name].quantity += 1;
+      if (cart[product.name]) {
+        cart[product.name].quantity += 1;
       } else {
-        window.cartStorage[product.name] = {
+        cart[product.name] = {
           name: product.name,
           price: product.price,
           quantity: 1
         };
       }
 
-      window.totalStorage += product.price;
+      total += product.price;
+      
+      // Save changes to device storage instantly
+      saveCartToStorage();
       updateCartUI();
     });
 
     productsDiv.appendChild(div);
   });
 
-  // 2. Clear old event links and cleanly re-attach the active listener to your Order button
+  // Re-bind click listener safely
   const newOrderBtn = orderBtn.cloneNode(true);
   orderBtn.parentNode.replaceChild(newOrderBtn, orderBtn);
 
   newOrderBtn.addEventListener("click", () => {
     const tg = window.Telegram?.WebApp;
-    const finalizedCartArray = Object.values(window.cartStorage);
+    const finalizedCartArray = Object.values(cart);
 
     if (finalizedCartArray.length === 0) {
       if (tg && typeof tg.showAlert === 'function') {
@@ -73,42 +75,46 @@ function initHerryStoreGrid() {
       return;
     }
 
-    // Pass the finalized data package directly back to your Python Flask Telegram Bot
     if (tg && typeof tg.sendData === 'function') {
       tg.sendData(JSON.stringify({
         cart: finalizedCartArray,
-        total: window.totalStorage
+        total: total
       }));
+      
+      // Clear storage after successful order so old items disappear
+      localStorage.removeItem("herry_cart");
+      localStorage.removeItem("herry_total");
+      
       tg.close();
     } else {
-      console.log("Data packet simulation package:", { cart: finalizedCartArray, total: window.totalStorage });
-      alert("Order sent to bot! (Testing mode outside Telegram)");
+      alert("Order simulated! (Testing mode)");
     }
   });
 
-  // Keep the visual item list and price total correct after switching pages
   updateCartUI();
 }
 
-// 3. Refresh and Render Cart Layout Text views
+// Save engine state values to client memory database
+function saveCartToStorage() {
+  localStorage.setItem("herry_cart", JSON.stringify(cart));
+  localStorage.setItem("herry_total", total.toString());
+}
+
 function updateCartUI() {
   const totalDisplay = document.getElementById("total");
   const cartList = document.getElementById("cart");
 
-  if (totalDisplay) totalDisplay.innerText = window.totalStorage;
+  if (totalDisplay) totalDisplay.innerText = total;
   if (!cartList) return;
 
   cartList.innerHTML = ""; 
 
-  Object.values(window.cartStorage).forEach(item => {
+  Object.values(cart).forEach(item => {
     const li = document.createElement("li");
     li.innerText = `${item.name} (x${item.quantity}) — ${item.price * item.quantity} ETB`;
     cartList.appendChild(li);
   });
 }
 
-// Run the script instantly when loading up for the first time
 document.addEventListener("DOMContentLoaded", initHerryStoreGrid);
-
-// 🛠️ MAGIC TRICK: Expose this function globally to your template navigation setup
 window.refreshStoreListeners = initHerryStoreGrid;
