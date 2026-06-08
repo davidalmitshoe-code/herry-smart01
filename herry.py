@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 # Credentials Configuration
 TOKEN = "8820217071:AAGltetsRpmnq4OG_osBdHH5pcvL0EJNdG4"
 ADMIN_ID = 998942116
-WEBAPP_URL = " https://herry-ngeb.onrender.com"
+WEBAPP_URL = "https://davidalmitshoe-code.github.io/herry-smart01/"
 
 # 🌍 PRODUCTION HOSTING URL 
 # Replace this with your actual Render URL (e.g., https://herry-store-bot.onrender.com)
-RENDER_WEB_URL = "https://YOUR-APP-NAME.onrender.com" 
+RENDER_WEB_URL = " https://herry-ngeb.onrender.com" 
 
 # Initialize Flask App Engine
 flask_app = Flask(__name__)
