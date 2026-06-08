@@ -177,14 +177,11 @@ def telegram_webhook_handler():
     except Exception as err:
         logger.error(f"Webhook update processing exception: {err}")
         return "Internal Error", 500
-
 @flask_app.route("/set_webhook", methods=["GET"])
 def setup_live_webhook():
-    """Call this route via browser to automatically register your server hook link"""
-    if "YOUR-APP-NAME" in RENDER_WEB_URL:
-        return "❌ Setup Error: Please replace line 18 with your live Render app URL address first!", 400
-    
-    target_webhook_url = f"{RENDER_WEB_URL}/{TOKEN}"
+    """Forces the exact valid Render URL straight to Telegram"""
+    # Hardcoding the secure link directly to bypass any variable errors
+    target_webhook_url = f"https://herry-ngeb.onrender.com/{TOKEN}"
     
     async def set_hook():
         async with tg_app:
