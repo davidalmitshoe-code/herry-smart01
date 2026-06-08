@@ -1,57 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Harry Mobile & Accessories</title>
-
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harry Mobile & Accessories</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<div class="bottom-nav">
-
-<a href="index.html">
-🏠 Home
-</a>
-
-<a href="#cart">
-🛒 My Order
-</a>
-
-<a href="contact.html">
-👤 Contact
-</a>
-
-</div>
 <body>
 
-<h1>Harry Mobile & Accessories</h1>
+    <div class="bottom-nav">
+        <a href="index.html" onclick="if(window.refreshStoreListeners){ window.refreshStoreListeners(); }">
+            🏠 Home
+        </a>
 
-<div id="products"></div>
+        <a href="#cart">
+            🛒 My Order
+        </a>
 
-<div class="cart" id="cart"></div>
+        <a href="contact.html">
+            👤 Contact
+        </a>
+    </div>
 
-<h2>Your Order</h2>
+    <h1>Harry Mobile & Accessories</h1>
 
-<ul id="cart"></ul>
+    <div id="products"></div>
 
-<h3>Total: <span id="total">0</span> ETB</h3>
+    <h2>Your Order</h2>
+    <ul id="cart"></ul>
 
-<button id="orderBtn">
-Order Now
-</button>
+    <h3>Total: <span id="total">0</span> ETB</h3>
 
+    <button id="orderBtn">
+        Order Now
+    </button>
 
-</div>
-
-
-<footer>
-        <p>📍 HOSSANA GRACE PLAZA  B12  MOBILE ZONE </p>
-        <p>© 2026  Harry Mobile & Electronics - All Rights Reserved</p>
-        <p>@EtyDavid-Software-Solution </p>
+    <footer>
+        <p>📍 HOSSANA GRACE PLAZA B12 MOBILE ZONE</p>
+        <p>© 2026 Harry Mobile & Electronics - All Rights Reserved</p>
+        <p>@EtyDavid-Software-Solution</p>
     </footer>   
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="main.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="main.js"></script>
 
 </body>
 </html>
