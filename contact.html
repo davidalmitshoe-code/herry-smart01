@@ -1,55 +1,129 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Contact Us</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Contact Us</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f5f5f5;
+padding:15px;
+}
+
+.contact-card{
+background:white;
+padding:15px;
+border-radius:15px;
+margin-bottom:20px;
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+.avatar{
+width:80px;
+height:80px;
+border-radius:50%;
+background:#1565c0;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:35px;
+font-weight:bold;
+}
+
+.social{
+text-align:center;
+margin-top:20px;
+}
+
+.social a{
+font-size:30px;
+margin:10px;
+text-decoration:none;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:10px;
+border-top:1px solid #ddd;
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:black;
+font-weight:bold;
+}
+
+</style>
+
 </head>
 
 <body>
 
-    <h2>📞 Contact Us</h2>
+<h2>📞 Contact Us</h2>
 
-    <div class="contact-card">
-        <div class="avatar">H</div>
-        <div>
-            <h3>Hermon Getahun</h3>
-            <p>📞 +251922445515</p>
-            <p>Manager</p>
-        </div>
-    </div>
+<div class="contact-card">
 
-    <div class="contact-card">
-        <div class="avatar">D</div>
-        <div>
-            <h3>David Teshome</h3>
-            <p>📞 +251928854849</p>
-            <p>📞 +251714418356</p>
-            <p>Developer</p>
-        </div>
-    </div>
+<div class="avatar">H</div>
 
-    <div class="social">
-        <h3>Follow Developer</h3>
-        <a href="https://t.me/pselms">Telegram</a>
-        <a href="https://instagram.com/david_teshome08">Instagram</a>
-        <a href="https://facebook.com/david's teshome">Facebook</a>
-    </div>
+<div>
+<h3>Hermon Getahun</h3>
+<p>📞 +251922445515</p>
+<p>Manager</p>
+</div>
 
-    <div class="bottom-nav">
-        <a href="index.html">🏠 Home</a>
-        
-        <a href="index.html#cart">🛒 My Order</a>
-        
-        <a href="contact.html">👤 Contact</a>
-    </div>
+</div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-    </script>
+<div class="contact-card">
+
+<div class="avatar">D</div>
+
+<div>
+<h3>David Teshome</h3>
+<p>📞 +251928854849</p>
+<p>📞 +251714418356</p>
+<p>Developer</p>
+</div>
+
+</div>
+
+<div class="social">
+
+<h3>Contact Developer</h3>
+
+<a href="https://t.me/pselms">telegram</a>
+
+<a href="https://instagram.com/david_teshome08">instagram</a>
+
+<a href="https://facebook.com/david's teshome">facebook</a>
+
+</div>
+
+<br><br><br><br>
+
+<div class="bottom-nav">
+
+<a href="index.html">🏠 Home</a>
+
+<a href="#">🛒 My Order</a>
+
+<a href="contact.html">👤 Contact</a>
+
+</div>
 
 </body>
 </html>
